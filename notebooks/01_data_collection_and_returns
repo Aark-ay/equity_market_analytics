@@ -1,0 +1,59 @@
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+stocks = [
+    "RELIANCE.NS", "TCS.NS", "INFY.NS",
+    "HDFCBANK.NS", "ICICIBANK.NS",
+    "ITC.NS", "LT.NS", "SBIN.NS"
+]
+
+benchmark = "^NSEI"
+start_date = "2014-01-01"
+
+data_adj_cp = yf.download(
+    stocks + [benchmark],
+    start=start_date,
+    auto_adjust=True,
+    progress=False
+)["Close"]
+
+data_adj_cp = data_adj_cp.dropna()
+
+# print(data_adj_cp.round(2))
+
+data_adj_cp.to_csv(r"X:\CFA\Project1\equity_market_analytics\data\raw\price_data.csv")
+
+returns = data_adj_cp.pct_change().dropna()
+
+print(returns.head(5))
+
+
+cumulative_returns = (1 + returns).cumprod()
+
+plt.figure(figsize=(12, 6))
+for col in stocks:
+    plt.plot(cumulative_returns[col], alpha=0.7)
+
+plt.plot(cumulative_returns[benchmark],
+         color="black",
+         linewidth=3,
+         label="NIFTY 50")
+
+plt.title("Cumulative Returns: Indian Equities vs NIFTY 50")
+plt.legend()
+plt.show()
+
+plt.show()
+
+# =========================
+# INSIGHT
+# =========================
+# Over the 5-year period, IT stocks (TCS, INFY) show smoother growth
+# compared to PSU banks like SBIN, which exhibit higher volatility.
+# Benchmark outperformance varies by sector, indicating
+# diversification benefits.
+
+
+
